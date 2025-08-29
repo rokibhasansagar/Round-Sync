@@ -38,7 +38,7 @@ jobs:
       run: |
         ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk && echo
         ls ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk | while read -r i; do
-          curl -F "file=@${i}" https://temp.sh/upload && echo
+          curl -s -F "file=@${i}" https://temp.sh/upload && echo
         done
     - name: Upload APK (arm)
       uses: actions/upload-artifact@v4
