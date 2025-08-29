@@ -34,31 +34,40 @@ jobs:
       run: ./gradlew assembleOssDebug
     - name: Build app (Release)
       run: ./gradlew assembleOssRelease
-    - name: Build details
-      run: ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk
+    - name: Upload Build Results
+      run: |
+        ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk && echo
+        ls ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk | while read -r i; do
+          curl -F "file=@${i}" https://temp.sh/upload && echo
+        done
     - name: Upload APK (arm)
       uses: actions/upload-artifact@v4
       with:
         name: nightly-armeabi.zip
         path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-armeabi-v7a-*.apk
+        compression-level: 9
     - name: Upload APK (arm64)
       uses: actions/upload-artifact@v4
       with:
         name: nightly-arm64.zip
         path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-arm64-v8a-*.apk
+        compression-level: 9
     - name: Upload APK (x86)
       uses: actions/upload-artifact@v4
       with:
         name: nightly-x86.zip
         path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-x86-*.apk
+        compression-level: 9
     - name: Upload APK (arm)
       uses: actions/upload-artifact@v4
       with:
         name: nightly-x64.zip
         path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-x86_64-*.apk
+        compression-level: 9
     - name: Upload APK (universal)
       uses: actions/upload-artifact@v4
       with:
         name: nightly-universal.zip
         path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-universal-*.apk
+        compression-level: 9
         retention-days: 14
