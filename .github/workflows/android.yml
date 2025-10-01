@@ -6,6 +6,10 @@ on:
     tags:
       - '*'
 
+concurrency:
+  group: ci-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   createArtifacts:
     strategy:
@@ -45,8 +49,8 @@ jobs:
       run: ./gradlew assembleOss${{env.buildType}}
     - name: Upload Build Results
       run: |
-        ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-${{env.assetPfx}}*.apk && echo
-        ls ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-${{env.assetPfx}}*.apk | while read -r i; do
+        ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-*.apk && echo
+        ls ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-*.apk | while read -r i; do
           curl -s -F "file=@${i}" https://temp.sh/upload && echo
         done
     - name: Upload APK (arm)
@@ -77,6 +81,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: nightly-universal-${{env.assetPfx}}
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-universal-*${{env.assetPfx}}.apk
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-universal-*${{env.assetPfx}}*.apk
         compression-level: 9
         retention-days: 14
