@@ -37,8 +37,8 @@ android {
 
     buildTypes {
         debug {
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true // false
+            shrinkResources true // false
             manifestPlaceholders = [
                     appIcon: "@mipmap/ic_launcher_debug",
                     appIconRound: "@mipmap/ic_launcher_debug_round"
