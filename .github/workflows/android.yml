@@ -9,7 +9,7 @@ on:
 jobs:
   createArtifacts:
     strategy:
-      fail-fast: ${{ env.buildType == 'Release' }}
+      fail-fast: false
       matrix:
         include:
           - buildType: Release
