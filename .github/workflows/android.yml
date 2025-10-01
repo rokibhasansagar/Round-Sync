@@ -8,6 +8,17 @@ on:
 
 jobs:
   createArtifacts:
+    strategy:
+      fail-fast: ${{ matrix.buildType == 'Release'}}
+      matrix:
+        include:
+          - buildType: Release
+            assetPfx: release
+          - buildType: Debug
+            assetPfx: debug
+    env:
+      buildType: ${{ matrix.buildType }}
+      assetPfx: ${{ matrix.assetPfx }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
@@ -30,44 +41,42 @@ jobs:
       run: |
         NDK_VERSION="$(grep -E "^de\.felixnuesse\.extract\.ndkVersion=" gradle.properties | cut -d'=' -f2)"
         sdkmanager "ndk;${NDK_VERSION}"
-    - name: Build app (Debug)
-      run: ./gradlew assembleOssDebug
-    - name: Build app (Release)
-      run: ./gradlew assembleOssRelease
+    - name: Build app
+      run: ./gradlew assembleOss${{env.buildType}}
     - name: Upload Build Results
       run: |
-        ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk && echo
-        ls ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-*.apk | while read -r i; do
+        ls -lAog ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-${{env.assetPfx}}*.apk && echo
+        ls ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-${{env.assetPfx}}*.apk | while read -r i; do
           curl -s -F "file=@${i}" https://temp.sh/upload && echo
         done
     - name: Upload APK (arm)
       uses: actions/upload-artifact@v4
       with:
-        name: nightly-armeabi.zip
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-armeabi-v7a-*.apk
+        name: nightly-armeabi-${{env.assetPfx}}
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-armeabi-v7a-${{env.assetPfx}}*.apk
         compression-level: 9
     - name: Upload APK (arm64)
       uses: actions/upload-artifact@v4
       with:
-        name: nightly-arm64.zip
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-arm64-v8a-*.apk
+        name: nightly-arm64-${{env.assetPfx}}
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-arm64-v8a-${{env.assetPfx}}*.apk
         compression-level: 9
     - name: Upload APK (x86)
       uses: actions/upload-artifact@v4
       with:
-        name: nightly-x86.zip
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-x86-*.apk
+        name: nightly-x86-${{env.assetPfx}}
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-x86-${{env.assetPfx}}*.apk
         compression-level: 9
     - name: Upload APK (arm)
       uses: actions/upload-artifact@v4
       with:
-        name: nightly-x64.zip
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-x86_64-*.apk
+        name: nightly-x64-${{env.assetPfx}}
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-x86_64-${{env.assetPfx}}*.apk
         compression-level: 9
     - name: Upload APK (universal)
       uses: actions/upload-artifact@v4
       with:
-        name: nightly-universal.zip
-        path: ${{ github.workspace }}/app/build/outputs/apk/oss/*/*-oss-universal-*.apk
+        name: nightly-universal-${{env.assetPfx}}
+        path: ${{ github.workspace }}/app/build/outputs/apk/oss/${{env.assetPfx}}/*-oss-universal-*${{env.assetPfx}}.apk
         compression-level: 9
         retention-days: 14
